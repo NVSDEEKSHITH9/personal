@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Goal & Savings Tracker</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f3f7fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 20px 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #0077b6;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input, select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #0077b6;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #005f8a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: center;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #0077b6;
+      color: white;
+    }
+    .summary {
+      margin-top: 20px;
+      background: #e9f5ff;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .summary h2 {
+      margin: 5px 0;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Smart Financial Goal Tracker</h1>
+
+    <!-- Goal Entry Form -->
+    <h3>Add New Goal</h3>
+    <form id="goalForm">
+      <input type="text" id="goalName" placeholder="Goal Name" required>
+      <input type="number" id="goalAmount" placeholder="Amount Required" required>
+      <input type="number" id="goalYears" placeholder="Years" required>
+      <input type="number" id="goalMonths" placeholder="Months" required>
+      <button type="submit">Add Goal</button>
+    </form>
+
+    <!-- Goals Table -->
+    <table id="goalsTable">
+      <thead>
+        <tr>
+          <th>Goal</th>
+          <th>Target (₹)</th>
+          <th>Time (Months)</th>
+          <th>Per Month (₹)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Savings Section -->
+    <h3>Add Savings</h3>
+    <form id="savingsForm">
+      <select id="savingsType" required>
+        <option value="">Select Type</option>
+        <option>ETF</option>
+        <option>Mutual Fund</option>
+        <option>Stocks</option>
+        <option>Other</option>
+      </select>
+      <input type="number" id="savingsAmount" placeholder="Amount Saved" required>
+      <button type="submit">Add Savings</button>
+    </form>
+
+    <!-- Savings Table -->
+    <table id="savingsTable">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Summary -->
+    <div class="summary">
+      <h2>Total Goals Target: ₹<span id="totalGoals">0</span></h2>
+      <h2>Total Savings: ₹<span id="totalSavings">0</span></h2>
+      <h2>Remaining Required: ₹<span id="remainingAmount">0</span></h2>
+    </div>
+  </div>
+
+  <script>
+    const goalForm = document.getElementById('goalForm');
+    const goalsTable = document.querySelector('#goalsTable tbody');
+    const savingsForm = document.getElementById('savingsForm');
+    const savingsTable = document.querySelector('#savingsTable tbody');
+
+    const totalGoalsDisplay = document.getElementById('totalGoals');
+    const totalSavingsDisplay = document.getElementById('totalSavings');
+    const remainingAmountDisplay = document.getElementById('remainingAmount');
+
+    let goals = [];
+    let savings = [];
+
+    function updateSummary() {
+      const totalGoals = goals.reduce((sum, g) => sum + g.amount, 0);
+      const totalSavings = savings.reduce((sum, s) => sum + s.amount, 0);
+      const remaining = totalGoals - totalSavings;
+
+      totalGoalsDisplay.textContent = totalGoals.toLocaleString();
+      totalSavingsDisplay.textContent = totalSavings.toLocaleString();
+      remainingAmountDisplay.textContent = remaining.toLocaleString();
+    }
+
+    goalForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = goalForm.goalName.value;
+      const amount = parseFloat(goalForm.goalAmount.value);
+      const years = parseInt(goalForm.goalYears.value);
+      const months = parseInt(goalForm.goalMonths.value);
+      const totalMonths = years * 12 + months;
+      const perMonth = (amount / totalMonths).toFixed(2);
+
+      goals.push({ name, amount, totalMonths, perMonth });
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${name}</td>
+        <td>${amount.toLocaleString()}</td>
+        <td>${totalMonths}</td>
+        <td>${perMonth}</td>
+      `;
+      goalsTable.appendChild(row);
+      updateSummary();
+      goalForm.reset();
+    });
+
+    savingsForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const type = savingsForm.savingsType.value;
+      const amount = parseFloat(savingsForm.savingsAmount.value);
+      savings.push({ type, amount });
+
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${type}</td><td>${amount.toLocaleString()}</td>`;
+      savingsTable.appendChild(row);
+      updateSummary();
+      savingsForm.reset();
+    });
+  </script>
+</body>
+</html>
